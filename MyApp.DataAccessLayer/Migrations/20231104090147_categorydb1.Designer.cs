@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyAppWeb.Data;
+using MyApp.DataAccessLayer;
 
 #nullable disable
 
-namespace MyAppWeb.Migrations
+namespace MyApp.DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231030065634_AddCategoryTodatabse")]
-    partial class AddCategoryTodatabse
+    [Migration("20231104090147_categorydb1")]
+    partial class categorydb1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
