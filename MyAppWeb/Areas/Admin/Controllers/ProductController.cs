@@ -1,26 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyApp.DataAccessLayer;
 using MyApp.DataAccessLayer.Infrastructure.IRepository;
-using MyApp.Models;
 using MyApp.Models.ViewModels;
 
 namespace MyAppWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CategoryController : Controller
+    public class ProductController : Controller
     {
         private IUnitOfWork _unitOfWork;
 
-        public CategoryController(IUnitOfWork unitOfWork)
+        public ProductController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            CategoryVM categoryVM = new CategoryVM();
-            categoryVM.categories = _unitOfWork.Category.GetAll();
-            return View(categoryVM);
+            ProductVM productVM = new ProductVM();
+            productVM.Products = _unitOfWork.Product.GetAll();
+            return View(productVM);
         }
         //[HttpGet]
         //public IActionResult Create()
@@ -29,16 +27,16 @@ namespace MyAppWeb.Areas.Admin.Controllers
         //}
         //[HttpPost]
         //[ValidateAntiForgeryToken]
-        //public IActionResult Create(Category category)
+        //public IActionResult Create(Product product)
         //{
         //    if (ModelState.IsValid)
         //    {
-        //        _unitOfWork.Category.Add(category);
+        //        _unitOfWork.Product.Add(product);
         //        _unitOfWork.Save();
-        //        TempData["success"] = "Category Created Done!";
+        //        TempData["success"] = "Product Created Done!";
         //        return RedirectToAction("Index");
         //    }
-        //    return View(category);
+        //    return View(product);
         //}
         [HttpGet]
         public IActionResult CreateUpdate(int? id)
@@ -67,10 +65,10 @@ namespace MyAppWeb.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (vm.Category.Id==0)
+                if (vm.Category.Id == 0)
                 {
                     _unitOfWork.Category.Add(vm.Category);
-                TempData["success"] = "Category Created Done!";
+                    TempData["success"] = "Category Created Done!";
                 }
                 else
                 {
@@ -111,6 +109,5 @@ namespace MyAppWeb.Areas.Admin.Controllers
             TempData["success"] = "Category Deleted Done!";
             return RedirectToAction("Index");
         }
-
     }
 }
