@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyApp.DataAccessLayer.Infrastructure.IRepository;
+using MyApp.Models;
 using MyApp.Models.ViewModels;
 
 namespace MyAppWeb.Areas.Admin.Controllers
@@ -41,15 +42,24 @@ namespace MyAppWeb.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult CreateUpdate(int? id)
         {
-            CategoryVM vm = new CategoryVM();
+            ProductVM vm = new ProductVM()
+            {
+                Product = new(),
+                Categories = _unitOfWork.Category.GetAll().Select(x =>
+                new System.Web.Mvc.SelectListItem()
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString()
+                })
+            };
             if (id == null || id == 0)
             {
                 return View(vm);
             }
             else
             {
-                vm.Category = _unitOfWork.Category.GetT(x => x.Id == id);
-                if (vm.Category == null)
+                vm.Product = _unitOfWork.Product.GetT(x => x.Id == id);
+                if (vm.Product == null)
                 {
                     return NotFound();
                 }
@@ -61,19 +71,19 @@ namespace MyAppWeb.Areas.Admin.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateUpdate(CategoryVM vm)
+        public IActionResult CreateUpdate(ProductVM vm)
         {
             if (ModelState.IsValid)
             {
-                if (vm.Category.Id == 0)
+                if (vm.Product.Id == 0)
                 {
-                    _unitOfWork.Category.Add(vm.Category);
-                    TempData["success"] = "Category Created Done!";
+                    _unitOfWork.Product.Add(vm.Product);
+                    TempData["success"] = "Product Created Done!";
                 }
                 else
                 {
-                    _unitOfWork.Category.Update(vm.Category);
-                    TempData["success"] = "Category Updated Done!";
+                    _unitOfWork.Product.Update(vm.Product);
+                    TempData["success"] = "Product Updated Done!";
 
                 }
                 _unitOfWork.Save();
@@ -88,25 +98,25 @@ namespace MyAppWeb.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var category = _unitOfWork.Category.GetT(x => x.Id == id);
-            if (category == null)
+            var product = _unitOfWork.Product.GetT(x => x.Id == id);
+            if (product == null)
             {
                 return NotFound();
             }
-            return View(category);
+            return View(product);
         }
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteData(int? id)
         {
-            var category = _unitOfWork.Category.GetT(x => x.Id == id);
-            if (category == null)
+            var product = _unitOfWork.Product.GetT(x => x.Id == id);
+            if (product == null)
             {
                 return NotFound();
             }
-            _unitOfWork.Category.Delete(category);
+            _unitOfWork.Product.Delete(product);
             _unitOfWork.Save();
-            TempData["success"] = "Category Deleted Done!";
+            TempData["success"] = "Product Deleted Done!";
             return RedirectToAction("Index");
         }
     }
