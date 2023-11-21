@@ -12,8 +12,8 @@ using MyApp.DataAccessLayer;
 namespace MyApp.DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231120082342_InitialSchoolDB")]
-    partial class InitialSchoolDB
+    [Migration("20231121064256_Product1")]
+    partial class Product1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

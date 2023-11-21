@@ -4,11 +4,11 @@
             <h2 class="text-primary">List of Products</h2>
         </div>
         <div class="col-6 text-end">
-            <a class="btn btn-primary" asp-action="CreateProduct" asp-controller="Product"><i class="bi bi-plus-circle"></i> Create New Product</a>
+            <a class="btn btn-primary" asp-action="CreateUpdate" asp-controller="Product"><i class="bi bi-plus-circle"></i> Create New Product</a>
         </div>
     </div>
 </div>
-<table class="table table-bordered table-striped" sytle="width: 100%">
+<table id="myTable" class="table table-bordered table-striped" sytle="width: 100%">
     <thead>
         <tr>
             <th>
@@ -23,7 +23,13 @@
             <th>
                 Category
             </th>
+            <th>
+                Action
+            </th>
         </tr>
     </thead>
 </table>
 
+@section scripts{
+    <script src="~/js/Product.js"></script>
+}

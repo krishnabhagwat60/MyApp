@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyApp.DataAccessLayer.Infrastructure.IRepository;
-using MyApp.Models;
 using MyApp.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MyAppWeb.Areas.Admin.Controllers
 {
@@ -9,17 +9,26 @@ namespace MyAppWeb.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private IUnitOfWork _unitOfWork;
+        private IWebHostEnvironment _hostingEnvironment;
 
-        public ProductController(IUnitOfWork unitOfWork)
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment hostingEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _hostingEnvironment = hostingEnvironment;
         }
+        #region APICALL
+        public IActionResult AllProduct()
+        {
+            var products = _unitOfWork.Product.GetAll(includeProperties: "Category");
+            return Json(new { data = products });
+        }
+        #endregion
 
         public IActionResult Index()
         {
-            ProductVM productVM = new ProductVM();
-            productVM.Products = _unitOfWork.Product.GetAll();
-            return View(productVM);
+            //ProductVM productVM = new ProductVM();
+            //productVM.Products = _unitOfWork.Product.GetAll();
+            return View();
         }
         //[HttpGet]
         //public IActionResult Create()
@@ -46,7 +55,7 @@ namespace MyAppWeb.Areas.Admin.Controllers
             {
                 Product = new(),
                 Categories = _unitOfWork.Category.GetAll().Select(x =>
-                new System.Web.Mvc.SelectListItem()
+                new SelectListItem()
                 {
                     Text = x.Name,
                     Value = x.Id.ToString()
@@ -71,10 +80,31 @@ namespace MyAppWeb.Areas.Admin.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateUpdate(ProductVM vm)
+        public IActionResult CreateUpdate(ProductVM vm, IFormFile? file)
         {
             if (ModelState.IsValid)
             {
+                string filName = String.Empty;
+                if (file != null)
+                {
+                    string uploadDir = Path.Combine(_hostingEnvironment.WebRootPath, "ProductImage");
+                    filName = Guid.NewGuid().ToString() + "-" + file.FileName;
+                    string filePath = Path.Combine(uploadDir, filName);
+
+                    if (vm.Product.ImageUrl != null)
+                    {
+                        var oldImagePath = Path.Combine(_hostingEnvironment.WebRootPath, vm.Product.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+                    vm.Product.ImageUrl = @"\ProductImage\" + filName;
+                }
                 if (vm.Product.Id == 0)
                 {
                     _unitOfWork.Product.Add(vm.Product);
@@ -86,38 +116,49 @@ namespace MyAppWeb.Areas.Admin.Controllers
                     TempData["success"] = "Product Updated Done!";
 
                 }
+
                 _unitOfWork.Save();
                 return RedirectToAction("Index");
             }
             return RedirectToAction("Index");
         }
-        [HttpGet]
+        //[HttpGet]
+        //public IActionResult Delete(int? id)
+        //{
+        //    if (id == null || id == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var product = _unitOfWork.Product.GetT(x => x.Id == id);
+        //    if (product == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return View(product);
+        //}
+        #region Delete APICALL
+        [HttpDelete]
         public IActionResult Delete(int? id)
         {
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
+
+
             var product = _unitOfWork.Product.GetT(x => x.Id == id);
             if (product == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Error in Fetching Data" });
             }
-            return View(product);
-        }
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteData(int? id)
-        {
-            var product = _unitOfWork.Product.GetT(x => x.Id == id);
-            if (product == null)
+            else
             {
-                return NotFound();
+                var oldImagePath = Path.Combine(_hostingEnvironment.WebRootPath, product.ImageUrl.TrimStart('\\'));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+                _unitOfWork.Product.Delete(product);
+                _unitOfWork.Save();
+                return Json(new { success = true, message = "Error in Fetching Data" });
             }
-            _unitOfWork.Product.Delete(product);
-            _unitOfWork.Save();
-            TempData["success"] = "Product Deleted Done!";
-            return RedirectToAction("Index");
         }
+        #endregion
     }
 }

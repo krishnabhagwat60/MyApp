@@ -1,5 +1,6 @@
 ﻿var dtable;
 $(document).ready(function () {
+    debugger
     dtable = $("#myTable").DataTable({
         "ajax":
         {
