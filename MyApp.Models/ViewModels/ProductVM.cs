@@ -5,7 +5,7 @@ namespace MyApp.Models.ViewModels
 {
     public class ProductVM
     {
-        public Product Product { get; set; }
+        public Product Product { get; set; } = new Product();
         [ValidateNever]
         public IEnumerable <Product> Products { get; set; } = new List<Product>();
         [ValidateNever]

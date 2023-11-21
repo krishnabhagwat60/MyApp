@@ -17,7 +17,7 @@ namespace MyAppWeb.Areas.Admin.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
         #region APICALL
-        public IActionResult AllProduct()
+        public IActionResult AllProducts()
         {
             var products = _unitOfWork.Product.GetAll(includeProperties: "Category");
             return Json(new { data = products });
